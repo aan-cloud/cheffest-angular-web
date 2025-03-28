@@ -1,0 +1,19 @@
+<section class="px-4 sm:px-24 flex flex-col gap-20 py-14 bg-[#0D0D0D]">
+    <div *ngIf="isLoading" class="text-white">Loading...</div>
+    
+    <div *ngIf="!isLoading" class="grid grid-cols-[repeat(auto-fill,minmax(300px,1fr))] gap-4">
+      <div *ngFor="let food of foods" class="p-5 flex flex-col gap-4 bg-[#191919]" #productCard>
+        <img class="h-48" [src]="food.imageUrl" [alt]="food.name">
+        <h1 class="font-bold text-lg text-white">{{ food.name }}</h1>
+        <small class="font-extralight text-white">{{ food.description }}</small>
+        
+        <div class="flex justify-between items-center">
+          <h1 class="font-bold text-xl text-white">${{ food.price }}</h1>
+          <button class="bg-transparent cursor-pointer">
+            🛒
+          </button>
+        </div>
+      </div>
+    </div>
+</section>
+  
