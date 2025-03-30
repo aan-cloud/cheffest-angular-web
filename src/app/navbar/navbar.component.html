@@ -3,8 +3,8 @@
         <img src="https://ucarecdn.com/ae03f850-4195-44d8-9137-921139adbbd6/Logo.svg" alt="Cheffest Logo" class="w-14">
     </a>
     <ol class="flex justify-between items-center gap-5">
-        <a routerLink="/about" class="text-white" [ngClass]="isActive('/about')">About</a>
-        <a routerLink="/foods" class="text-white" [ngClass]="isActive('/foods')">Our Menu</a>
+        <a routerLink="/about" class="text-white">About</a>
+        <a routerLink="/foods" class="text-white">Our Menu</a>
     </ol>
     <input (keydown)="handleSearch($event)" placeholder="Search..." class="w-[55%] p-2 px-3 rounded-lg ring ring-gray-500 text-white">
     <a routerLink="/cart">
@@ -12,19 +12,24 @@
             <path fill-rule="evenodd" d="M7.5 6v.75H5.513c-.96 0-1.764.724-1.865 1.679l-1.263 12A1.875 1.875 0 0 0 4.25 22.5h15.5a1.875 1.875 0 0 0 1.865-2.071l-1.263-12a1.875 1.875 0 0 0-1.865-1.679H16.5V6a4.5 4.5 0 1 0-9 0ZM12 3a3 3 0 0 0-3 3v.75h6V6a3 3 0 0 0-3-3Zm-3 8.25a3 3 0 1 0 6 0v-.75a.75.75 0 0 1 1.5 0v.75a4.5 4.5 0 1 1-9 0v-.75a.75.75 0 0 1 1.5 0v.75Z" clip-rule="evenodd" />
         </svg>
     </a>
-    <div class="relative">
-        <div class="cursor-pointer" (click)="togglePopover()">
-            <img class="size-10 rounded-full bg-white" [src]="userdata?.photoUrl || 'https://github.com/shadcn.png'" alt="User Avatar">
-        </div>
-        <div *ngIf="showPopover" class="absolute border-none shadow-sm -right-4 flex flex-col gap-1.5 bg-[#191919]">
-            <div *ngIf="isAuth && userdata" class="p-3 bg-white flex flex-col gap-1.5">
-                <h1 class="font-light font-sans text-center">{{ userdata.name }}</h1>
-                <button (click)="handleLogout()" class="bg-red-500 hover:bg-red-800">Logout</button>
+    @if (userdata() && isAuth()) {
+        <img (click)="togglePopover()" class="rounded-full cursor-pointer size-12" [src]="userdata()?.photoUrl" [alt]="userdata()?.name">
+        @if (showPopover()) {
+            <div class="bg-gray-700 absolute right-24 top-20 rounded-md flex flex-col gap-1 px-4 py-4">
+                <h1 class="font-sans text-white font-semibold">{{userdata()?.name}}</h1>
+                <small class="text-white font-light">{{userdata()?.email}}</small>
+                <button (click)="handleLogout()" class="px-3 py-1.5 mt-2.5  rounded-sm text-sm bg-red-600 hover:bg-red-500 cursor-pointer text-white">Logout</button>
             </div>
-            <div *ngIf="!isAuth">
-                <!-- <google-login (success)="handleLogin($event)" (error)="onLoginError()"></google-login> -->
-            </div>
-        </div>
-    </div>
+        }
+    } @else {
+        <asl-google-signin-button 
+            size="large"
+            theme="filled_blue"
+            shape="pill"
+            text="signin_with"
+            logo_alignment="left"
+            (click)="handleLogin()">
+        </asl-google-signin-button>
+    }
 </nav>
 
