@@ -13,6 +13,7 @@ interface Food {
 
 @Component({
   selector: 'app-foods',
+  standalone: true,
   templateUrl: './foods.component.html',
   styleUrls: ['./foods.component.css'],
   imports: [CommonModule]
@@ -33,7 +34,7 @@ export class FoodsComponent implements OnInit {
 
   fetchFoods(searchQuery?: string): void {
     this.isLoading = true;
-    const url = `${this.apiUrl}/api/foods${searchQuery ? `?slug=${searchQuery}` : ''}`;
+    const url = `${this.apiUrl}/api/public/foods${searchQuery ? `?slug=${searchQuery}` : ''}`;
     
     this.http.get<Food[]>(url).subscribe({
       next: (data) => {
