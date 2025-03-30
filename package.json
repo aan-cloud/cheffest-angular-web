@@ -24,6 +24,8 @@
     "@angular/ssr": "^19.2.5",
     "@tailwindcss/postcss": "^4.0.17",
     "express": "^4.18.2",
+    "ngx-cookie-service": "^19.1.2",
+    "ngx-toastr": "^19.0.0",
     "postcss": "^8.5.3",
     "rxjs": "~7.8.0",
     "tailwindcss": "^4.0.17",
