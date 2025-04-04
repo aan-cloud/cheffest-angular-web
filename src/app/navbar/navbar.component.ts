@@ -7,6 +7,9 @@ import { GoogleLoginProvider, SocialAuthService, SocialUser } from '@abacritt/an
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { CookieService } from 'ngx-cookie-service';
 import { ToastrService } from 'ngx-toastr';
+import { GlobalStateService } from '../service/global-state.service';
+import { Observable } from 'rxjs';
+import type { UserData } from '../service/global-state.service';
 
 type LoginResponse = {
   message: string,
@@ -26,12 +29,14 @@ export class NavbarComponent {
   showPopover = signal(false);
   userdata = signal<SocialUser | null>(null);
   private cookieService = inject(CookieService);
+  user$!:  Observable<UserData | null>;
 
-  constructor(private toasterService: ToastrService, private router: Router, private authService: SocialAuthService, private http: HttpClient) {}
+  constructor(private globalStateService: GlobalStateService ,private toasterService: ToastrService, private router: Router, private authService: SocialAuthService, private http: HttpClient) {}
 
   ngOnInit(): void {
+    this.user$ = this.globalStateService.state$;
+
     this.authService.authState.subscribe((user) => {
-      console.log(user.photoUrl)
       
       if (user) {
         const url = "https://cheffest-backend-spring-production.up.railway.app/api/auth/google";
@@ -48,12 +53,34 @@ export class NavbarComponent {
             this.cookieService.set('token', data.token, {expires: expiryDate, path: '/'});
             this.userdata.update(() => (user));
             this.isAuth.set(!!user);
-            this.toasterService.success('Login Success!', 'Success', {timeOut: 3000})
+            this.toasterService.success('Login Success!', 'Success', {timeOut: 3000});
+            this.setUserGlobalState();
           },
           error: (error) => {
             console.log(`fetch login error: ${error}`)
           }
         });
+      }
+    });
+  }
+
+  setUserGlobalState () {
+    const url = "https://cheffest-backend-spring-production.up.railway.app/api/auth/me";
+    const token = this.cookieService.get('token');
+    const headers = new HttpHeaders({
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`
+    });
+
+    this.http.get<UserData>(url, { headers }).subscribe({
+      next: (data) => {
+        console.log("User data retrieved:", data);
+        this.globalStateService.setUser(data);
+        console.log("State after setUser:", this.globalStateService.state$);
+        this.toasterService.success('Success set the global state', 'Success', { timeOut: 2000 });
+      },
+      error: (err) => {
+        this.toasterService.error('Error set global state userdata', 'Error', {timeOut: 2000})
       }
     });
   }
