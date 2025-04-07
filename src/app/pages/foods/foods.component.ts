@@ -4,7 +4,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { ActivatedRoute } from '@angular/router';
 import { CookieService } from 'ngx-cookie-service';
 import { GlobalStateService, UserData } from '../../service/global-state.service';
-import { firstValueFrom, Observable } from 'rxjs';
+import { Observable } from 'rxjs';
 import { ToastrService } from 'ngx-toastr';
 
 interface Food {
@@ -32,7 +32,7 @@ type FoodToCartResponse = {
 export class FoodsComponent implements OnInit {
   isLoading = false;
   foods: Food[] = [];
-  apiUrl = "https://cheffest-backend-spring-production.up.railway.app";
+  apiUrl = "https://cheffest-backend-spring.onrender.com";
   cookieService = inject(CookieService);
   private userId: string | null = null;
   user$!:  Observable<UserData | null>;
@@ -43,7 +43,6 @@ export class FoodsComponent implements OnInit {
     this.user$ = this.globalStateService.state$;
 
     this.user$.subscribe(user => {
-      console.log("User state in FoodsComponent:", user);
       if (user) {
         this.userId = user.userData.id;
       }
@@ -65,7 +64,6 @@ export class FoodsComponent implements OnInit {
         this.isLoading = false
       },
       error: (error) => {
-        console.error('Error fetching foods:', error)
         this.isLoading = false
       }
     });

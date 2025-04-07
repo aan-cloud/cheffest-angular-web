@@ -30,6 +30,7 @@ export class NavbarComponent {
   userdata = signal<SocialUser | null>(null);
   private cookieService = inject(CookieService);
   user$!:  Observable<UserData | null>;
+  googleProvider = GoogleLoginProvider.PROVIDER_ID;
 
   constructor(private globalStateService: GlobalStateService ,private toasterService: ToastrService, private router: Router, private authService: SocialAuthService, private http: HttpClient) {}
 
@@ -39,7 +40,7 @@ export class NavbarComponent {
     this.authService.authState.subscribe((user) => {
       
       if (user) {
-        const url = "https://cheffest-backend-spring-production.up.railway.app/api/auth/google";
+        const url = "https://cheffest-backend-spring.onrender.com/api/auth/google";
         const payload = { token: user.idToken };
         const headers = new HttpHeaders({
           'Content-Type': 'application/json'
@@ -65,7 +66,7 @@ export class NavbarComponent {
   }
 
   setUserGlobalState () {
-    const url = "https://cheffest-backend-spring-production.up.railway.app/api/auth/me";
+    const url = "https://cheffest-backend-spring.onrender.com/api/auth/me";
     const token = this.cookieService.get('token');
     const headers = new HttpHeaders({
       'Content-Type': 'application/json',
@@ -74,9 +75,7 @@ export class NavbarComponent {
 
     this.http.get<UserData>(url, { headers }).subscribe({
       next: (data) => {
-        console.log("User data retrieved:", data);
         this.globalStateService.setUser(data);
-        console.log("State after setUser:", this.globalStateService.state$);
         this.toasterService.success('Success set the global state', 'Success', { timeOut: 2000 });
       },
       error: (err) => {
@@ -92,7 +91,6 @@ export class NavbarComponent {
 
   togglePopover(): void {
     this.showPopover.set(!this.showPopover());
-    console.log(this.showPopover())
   }
 
   handleLogout(): void {
@@ -100,13 +98,8 @@ export class NavbarComponent {
       this.cookieService.delete('token');
       this.isAuth.set(false);
       this.userdata.set(null);
+      this.globalStateService.resetUser();
       this.toasterService.success('Logout Success!', 'Success', {timeOut: 2000})
-    });
-  }
-
-  handleLogin(): void {
-    this.authService.signIn(GoogleLoginProvider.PROVIDER_ID).catch(error => {
-      console.error("Login error:", error);
     });
   }
 

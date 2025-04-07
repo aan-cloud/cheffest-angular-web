@@ -22,13 +22,9 @@
             </div>
         }
     } @else {
-        <asl-google-signin-button 
-            size="large"
-            theme="filled_blue"
-            shape="pill"
-            text="signin_with"
-            logo_alignment="left"
-            (click)="handleLogin()">
+        <asl-google-signin-button
+            [type]="'standard'"
+            [size]="'large'">
         </asl-google-signin-button>
     }
 </nav>

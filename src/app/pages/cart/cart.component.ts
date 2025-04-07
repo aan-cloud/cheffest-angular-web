@@ -29,6 +29,12 @@ type Item = {
   }
 }
 
+type DeleteCartItemResponse = {
+  message: string,
+  foodName: string,
+  foodPrice: number
+}
+
 @Component({
   selector: 'app-cart',
   imports: [CommonModule],
@@ -38,7 +44,14 @@ type Item = {
   styleUrl: './cart.component.css'
 })
 export class CartComponent {
-  cart = signal<Cart | null>(null);
+  cart = signal<Cart>({
+    cart: {
+      id: "",
+      items: []
+    },
+    items: [],
+    totalPrice: 0
+  });
   userId: string | null = null;
   errorDetails: any;
   private cookieService = inject(CookieService);
@@ -50,7 +63,6 @@ export class CartComponent {
     this.user$ = this.globalStateService.state$;
 
     this.user$.subscribe(user => {
-      console.log("User state in CartComponent:", user);
       if (user) {
         this.userId = user.userData.id;
       }
@@ -60,7 +72,7 @@ export class CartComponent {
   }
 
   fetchCart() {
-    const url = `https://cheffest-backend-spring-production.up.railway.app/api/cart/user/${this.userId}`;
+    const url = `https://cheffest-backend-spring.onrender.com/api/cart/user/${this.userId}`;
     const token = this.cookieService.get('token');
     const headers = new HttpHeaders({
       'Content-type': 'application/json',
@@ -69,7 +81,6 @@ export class CartComponent {
 
     this.http.get<Cart>(url, { headers }).subscribe({
       next: (data) => {
-        console.log(`Data cart: ${data}`)
         this.cart.set(data);
       },
       error: (err) => {
@@ -80,16 +91,24 @@ export class CartComponent {
   };
 
   removeFoodFromCart(cartId: string | undefined, foodId: string) {
-    const url = `https://cheffest-backend-spring-production.up.railway.app/api/cart/delete/${cartId}/${foodId}`;
+    const url = `https://cheffest-backend-spring.onrender.com/api/cart/delete/${cartId}/${foodId}`;
     const token = this.cookieService.get('token');
     const headers = new HttpHeaders({
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${token}`
     });
 
-    this.http.delete(url, { headers }).subscribe({
+    this.http.delete<DeleteCartItemResponse>(url, { headers }).subscribe({
       next: (data) => {
         console.log(`Deleted item: ${data}`)
+        this.cart.update((cartData) => ({
+          totalPrice: cartData.totalPrice - data.foodPrice,
+          items: cartData.items.filter(item => item.food.id !== foodId),
+          cart: {
+            ...cartData.cart,
+            items: cartData.cart.items.filter(item => item.food.id !== foodId)
+          }
+        }));
       },
       error: (err) => {
         console.log(err)
